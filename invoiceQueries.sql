@@ -46,74 +46,44 @@
     WHERE ip.invoiceId = 3;
     
 -- 8. A query to get all the products of a particular person
+	
+		select * from Invoices;
+		
+		select inv.invoiceCode, p.firstName, p.lastName,pr.productType,pr.productLabel from Persons as p join Invoices as inv on p.personId = inv.ownerId
+													join InvoiceProducts as prods on inv.invoiceId = prods.invoiceId 
+                                                    join Products as pr on prods.productId = pr.productId
+                                                    where p.personId= 2 group by prods.productId;
 
     
 -- 9. A query to get all the Invoices of a particular owner
+		select inv.invoiceCode, p.firstName, p.lastName from Invoices as inv
+					join Persons as p on inv.ownerId = p.personId where inv.ownerId = 5;
 		
        
 -- 10. A query that “adds” a particular product to a particular invoice
--- 11. A query to find the total of all unitCostof all Concessionproducts
--- 12. A query to find thecustomerswith more than 2 invoices
+ INSERT INTO InvoiceProducts(invoiceId, productId, quantity,associatedRepair) VALUES (8, 2, 2.5,null);  #rental 
+
+-- 11. A query to find the total of all unitCostof all Concession products
+	select sum(p.unitCost) as concessionUnitCostSum from Products as p where p.productType = "c" ;
+    
+-- 12. A query to find the customers with more than 2 invoices
+	select c.name, count(c.customerId) as InvoiceCount from Invoices as inv 
+							join Customers as c on inv.customerId = c.customerId group by c.customerId having InvoiceCount > 2 ;
+                            
 -- 13. A query to find the number of invoices that include Repair as one of the product in the invoice
--- 14. A  query  to  find  the  total  revenue  generated  (excluding  fees  and  taxes) bytowingfrom all invoices
+	select count(inv.invoiceId) as InvoicesWithRepair from Invoices as inv 
+						join InvoiceProducts as prods on inv.invoiceId = prods.invoiceId
+                        join Products as pr on prods.productId = pr.productId where pr.productType = "F";
+                        
+-- 14. A  query  to  find  the  total  revenue  generated  (excluding  fees  and  taxes) by towing from all invoices
+	select sum(pr.costPerMile * prods.quantity) as TowingRevenue from Invoices as inv 
+						join InvoiceProducts as prods on inv.invoiceId = prods.invoiceId
+                        join Products as pr on prods.productId = pr.productId where pr.productType = "T";
+                        
 -- 15. Write a query to find any invoice that includes multiple products of the same type
+		select inv.invoiceCode, pr.productType, count(pr.productType) as count  from Invoices as inv 
+						join InvoiceProducts  as prods on inv.invoiceId = prods.invoiceId
+                        join Products as pr on prods.productId = pr.productId group by inv.invoiceId having count > 1;
 
-    
--- 6.	A query to get all the invoices of a particular customer.
-SELECT * FROM Invoices i
-	JOIN Customers c ON c.customerId = i.customerId
-    WHERE c.customerId = 1;
-    
--- 7.	A query that “adds” a particular product to a particular invoice.
-INSERT INTO InvoiceProducts (invoiceId, productId, quantity) VALUES
-	(2, 3, 8);
-    
--- 8.	A query to find the total of all per-unit costs of all lease-agreements.
-SELECT SUM(cost) FROM Products
-	WHERE type = 'L';
-
--- 9. A query to find the total of all per-unit costs of all sales-agreements.
-SELECT SUM(cost) FROM Products
-	WHERE type = 'S';
-    
--- 10. A query to find the total number of agreements sold on a particular date. 
-SELECT COUNT(productId) FROM Products
-	WHERE startDate LIKE "2015-06-06" OR dateTime LIKE "%2016-04-01%";
-    
--- 11. A query to find the total number of invoices for every realtor
-SELECT p.personId, COUNT(i.invoiceId) FROM Invoices i
-	JOIN Persons p on p.personId = i.realtorId
-    GROUP BY p.personId;
-    
--- 12. A query to find the total number of invoices for a particular agreement.
-SELECT COUNT(i.invoiceId) FROM Invoices i
-	JOIN InvoiceProducts ip ON ip.invoiceId = i.invoiceId
-    WHERE ip.productId = 2;
-
--- 13. A query to find the total revenue generated (excluding fees and taxes) on a particular date from all agreements
-SELECT ip.invoiceId, SUM(p.cost * ip.quantity) AS totalCost FROM Products p 
-	JOIN InvoiceProducts ip ON ip.productId = p.productId
-    WHERE p.type = 'S' OR p.type = 'L';
-    
--- 14. A query to find the total quantities sold (excluding fees and taxes) of each category of services (parking-passes and amenities) in all the existing invoices
-SELECT p.type, SUM(ip.quantity) AS totalQuantity FROM Products p
-	JOIN InvoiceProducts ip ON ip.productId = p.productId
-    WHERE p.type = 'P' or p.type = 'A'
-    GROUP BY p.type;
-    
--- 15. A query to detect invalid data in invoices as follows.  In a single invoice, a particular agreement should only appear once (since any number of units can 
---  	 be consolidated to a single record).  Write a query to find any invoice that includes multiple instances of the same agreement
-SELECT ip.invoiceId FROM InvoiceProducts ip
-	JOIN Products p ON ip.productId = p.productId
-    WHERE p.type = 'S' OR p.type = 'L'
-    GROUP BY ip.invoiceId
-    HAVING COUNT(DISTINCT p.productId) < COUNT(p.productId);
-    
--- 17. detect  a  possible  conflict  of  interest  as  follows.   No  distinction is made in this system between a person who is the primary
---       contact of a client and aperson who is also a sales person.  Write a query to find any and all invoices where the salesperson is 
---       the same as the primary contact of the invoice’s customer.
-SELECT i.invoiceId FROM Invoices i
-	JOIN Customers c ON c.customerId = i.customerId
-    WHERE c.primaryContactId = i.realtorId;
 
 

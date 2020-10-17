@@ -212,7 +212,9 @@ INSERT INTO Invoices(invoiceCode, ownerId, customerId) VALUES
     ("INV003", 3, 3),
     ("INV004", 4, 1),
     ("INV005", 5, 2),
-    ("INV006", 6, 3);
+    ("INV006", 6, 3),
+	("INV007", 5, 1),
+	("INV008", 5, 2);
 
 -- productCode:daysRented (R)
 -- productCode:hoursWorked (F) repair
@@ -229,7 +231,9 @@ INSERT INTO InvoiceProducts(invoiceId, productId, quantity,associatedRepair) VAL
     (4, 7, 22.33,null), # F
     (4, 8, 5,7) ,    # C
 	(5, 9, 55.5,null) , # T
-	(6, 10, 12.23, null) # T
-
+	(6, 10, 12.23, null), # T
+	(7, 9, 55.5,null) , # T
+    (8, 3, 2,null);  # C
+    
 
 
